@@ -38,7 +38,9 @@
     </div>
     <div class="main-body">
       <div
-          style="width: 100%;height: 60px;display: flex;justify-content: center;align-items: center;flex-direction: row">
+          style="width: 100%;height: 60px;display: flex;justify-content: center;align-items: center;flex-direction: row;">
+        <div style="width: 150px;height: 60px;position: absolute;left: 0" @click="close"></div>
+        <div style="width: 300px;height: 100%;-webkit-app-region: drag"></div>
         <el-button @click="popShow = true" plain class="main-button"
                    style="right: 160px;color: #000000 !important;display: flex;justify-content: center;align-items: center">
           <i class="el-icon-setting" style="font-size: 20px"></i>
@@ -76,8 +78,12 @@
                 </div>
               </el-option>
             </el-select>
-            <div style="width: 30px;height: 100%;z-index: 9;display: flex;align-items: center;justify-content: center;font-size: 40px;color: #ffffff">/</div>
-            <el-select v-model="suffix" placeholder="方法" style="width: 300px" filterable ref="suffixOption" :loading="optionView" @focus="getEvent">
+            <div
+                style="width: 30px;height: 100%;z-index: 9;display: flex;align-items: center;justify-content: center;font-size: 40px;color: #ffffff">
+              /
+            </div>
+            <el-select v-model="suffix" placeholder="方法" style="width: 300px" filterable ref="suffixOption"
+                       :loading="optionView" @focus="getEvent">
               <el-option v-for="(val,key) in suffixArray" :value="val.suffix" :key="val.suffix" :value-key="key">
                 <div @click="getSuffixName(val.name,val.method)" style="width: 100%;height: 100%;padding: 0 20px">
                   <span style="float: left">{{ val.name }}</span>
@@ -85,15 +91,23 @@
                 </div>
               </el-option>
             </el-select>
-            <el-button @click="send" class="api-button-action" style="position:absolute; right: 21%;top: 10px;padding: 0;width: 80px;height: 40px;display: flex;justify-content: center;align-items: center;border-width: 0" round>
-              <div style="width: 100%;height: 100%;display: flex;flex-direction: row;justify-content: center;align-items: center">
-                <el-image :src="require('@/assets/fasong.png')" style="margin-right: 3px;width: 20px;height: 20px"></el-image>
+            <el-button @click="send" class="api-button-action"
+                       style="position:absolute; right: 21%;top: 10px;padding: 0;width: 80px;height: 40px;display: flex;justify-content: center;align-items: center;border-width: 0"
+                       round>
+              <div
+                  style="width: 100%;height: 100%;display: flex;flex-direction: row;justify-content: center;align-items: center">
+                <el-image :src="require('@/assets/fasong.png')"
+                          style="margin-right: 3px;width: 20px;height: 20px"></el-image>
                 <div>请求</div>
               </div>
             </el-button>
-            <el-button id="get-word-btn" class="api-button-action" style="position:absolute; right: 11%;top: 10px;padding: 0;width: 80px;height: 40px;display: flex;justify-content: center;align-items: center;border-width: 0" @click="getApiWord" round>
-              <div style="width: 100%;height: 100%;display: flex;flex-direction: row;justify-content: center;align-items: center">
-                <el-image :src="require('@/assets/word.png')" style="margin-right: 3px;width: 20px;height: 20px;"></el-image>
+            <el-button id="get-word-btn" class="api-button-action"
+                       style="position:absolute; right: 11%;top: 10px;padding: 0;width: 80px;height: 40px;display: flex;justify-content: center;align-items: center;border-width: 0"
+                       @click="getApiWord" round>
+              <div
+                  style="width: 100%;height: 100%;display: flex;flex-direction: row;justify-content: center;align-items: center">
+                <el-image :src="require('@/assets/word.png')"
+                          style="margin-right: 3px;width: 20px;height: 20px;"></el-image>
                 <div>文档</div>
               </div>
             </el-button>
@@ -108,14 +122,16 @@
           </div>
         </div>
         <div class="api-input-box">
-          <editor ref="pushEditor" :value="push" :font-size="14" style="width: 100%;" wrap snippets @change="jsonChange"></editor>
+          <editor ref="pushEditor" :value="push" :font-size="14" style="width: 100%;" wrap snippets
+                  @change="jsonChange"></editor>
         </div>
         <div style="width: 90%;display: flex;justify-content: flex-start;align-items: center">
           <div class="header-button" @click="responseChange('res')">数据</div>
           <div class="header-button" @click="responseChange('header')">请求头</div>
         </div>
         <div class="api-input-box" style="margin-top: 0">
-          <editor ref="headerEditor" v-model="response" :font-size="14" style="width: 100%;" wrap snippets readonly></editor>
+          <editor ref="headerEditor" v-model="response" :font-size="14" style="width: 100%;" wrap snippets
+                  readonly></editor>
         </div>
       </div>
     </div>
@@ -171,7 +187,15 @@ export default {
           password: ""
         },
         route: "",
-        version: ""
+        version: "",
+        key: {},
+        tokenUrl: {
+          default: {
+            url: "/login/phone",
+            username: "username",
+            password: "password"
+          }
+        }
       },
       hostName: "",
       word: '',
@@ -189,6 +213,12 @@ export default {
       this.hostName = this.config.host.default
       this.$yiarce.setBaseUrl(this.hostName)
       this.$yiarce.setVersion(this.config.version)
+      console.log(this.config)
+      if (Object.keys(this.config.key[this.hostName]).length > 0) {
+        this.$yiarce.setKey(this.config.key[this.hostName])
+      }else{
+        this.$yiarce.initKey()
+      }
       this.getRoutes(0)
       setTimeout(() => {
         this.listenFocus()
@@ -205,10 +235,19 @@ export default {
       this.suffixEvent = e
     },
     login() {
-      let result = this.$yiarce.post('/login/phone', {
-        phone: this.config.user.username,
-        code: this.config.user.password
-      })
+      let tokenUrl = '/login/phone'
+      let reqBody = {}
+      if (this.config.tokenUrl[this.hostName] !== undefined) {
+        tokenUrl = this.config.tokenUrl[this.hostName].url
+        let u = this.config.tokenUrl[this.hostName].username;
+        let p = this.config.tokenUrl[this.hostName].password;
+        reqBody[u] = this.config.user.username
+        reqBody[p] = this.config.user.password
+      } else {
+        reqBody['phone'] = this.config.user.username
+        reqBody['code'] = this.config.user.password
+      }
+      let result = this.$yiarce.post(tokenUrl, reqBody)
       result.response.then((res) => {
         this.token = res['data']["token"]
         if (!this.head) {
@@ -231,7 +270,7 @@ export default {
           this.time = parseInt((new Date()).getTime() / 100, 10)
         }
 
-        let result = this.$yiarce.get('/getRoutes')
+        let result = this.$yiarce.get('getRoutes')
         result.response.then((res) => {
           if (res["code"] === undefined) {
             this.array = res
@@ -363,6 +402,11 @@ export default {
       this.$y.sendMessage('setConfig', this.config)
       this.$yiarce.setBaseUrl(this.hostName)
       this.$yiarce.setVersion(this.config.version)
+      if (Object.keys(this.config.key[this.hostName]).length > 0) {
+        this.$yiarce.setKey(this.config.key[this.hostName])
+      }else{
+        this.$yiarce.initKey()
+      }
       this.getRoutes(0)
       e()
     },
@@ -378,18 +422,23 @@ export default {
           content += '**参数**' + "\n\n" + '| 字段名 | 类型 | 解释 |' + "\n" + '| ------| ----- | ----- |' + "\n"
           Object.keys(this.data).forEach((val) => {
             let t = this.getType(this.data[val])
-            if(t === 'array'){
-              content += '| '+ val +' | array |'+' 描述 |'+"\n"+this.getArray(this.data[0][val],0,'&emsp;',0)
-            }else if(t === 'object'){
-              content += '| '+ val +' | object |'+' 描述 |'+"\n"+this.getArray(this.data[val],1,'&emsp;',0)
-            }else{
-              content += '| '+ val +' | '+this.getType(this.data[val]) + ' | '
-              content += (this.data[val].length !== 0 ? '描述 |' : '非必传 |') + "\n"
+            if (t === 'array') {
+              content += '| ' + val + ' | array |' + ' 描述 |' + "\n" + this.getNewArray(this.data[val], 'req', false)
+            } else if (t === 'object') {
+              content += '| ' + val + ' | object |' + ' 描述 |' + "\n" + this.getNewObject(this.data[val], 'req')
+            } else {
+              content += '| ' + val + ' | ' + this.getType(this.data[val]) + (this.data[val].length !== 0 ? '' : ' `可选`') + ' | '
+              content += '描述 |' + "\n"
             }
           })
           content += "\n" + '**请求示例**' + "\n\n"
           content += '```' + "\n" + this.push + "\n" + '```' + "\n\n"
         }
+      }
+      // return content;
+      if (this.response === '') {
+        clipboard.writeText(content);
+        return;
       }
       content += '**返回示例**' + "\n"
       content += '```' + "\n" + this.response + "\n" + '```' + "\n\n"
@@ -399,12 +448,12 @@ export default {
           content += '| 返回字段 | 解释 |' + "\n" + '| ------ | ----- |' + "\n"
           Object.keys(res.data[0]).forEach((val) => {
             let t = this.getType(res.data[0][val])
-            if(t === 'array'){
-              content += this.getArray(res.data[0][val],0,1)
-            }else if(t === 'object'){
-              content += this.getArray(res.data[0][val],1,1)
-            }else{
-              content += '| '+ val+' |  |'+"\n"
+            if (t === 'array') {
+              content += '| ' + val + ' | 描述 |' + "\n" + this.getNewArray(res.data[0][val], 'res', true)
+            } else if (t === 'object') {
+              content += '| ' + val + ' | 描述 |' + "\n" + this.getNewObject(res.data[0][val], 'res', true)
+            } else {
+              content += '| ' + val + ' |  |' + "\n"
             }
           })
         }
@@ -413,12 +462,12 @@ export default {
           content += '| 返回字段 | 解释 |' + "\n" + '| ------ | ----- |' + "\n"
           Object.keys(res.data).forEach((val) => {
             let t = this.getType(res.data[val])
-            if(t === 'array'){
-              content += '| '+ val +' | array |'+"\n"+this.getArray(res.data[val],0,'&emsp;')
-            }else if(t === 'object'){
-              content += '| '+ val +' | object |'+"\n"+this.getArray(res.data[val],1,'&emsp;')
-            }else{
-              content += '| '+ val+' |  |'+"\n"
+            if (t === 'array') {
+              content += '| ' + val + ' | array |' + "\n" + this.getNewArray(res.data[val], 'res', true)
+            } else if (t === 'object') {
+              content += '| ' + val + ' | object |' + "\n" + this.getNewObject(res.data[val], 'res', true)
+            } else {
+              content += '| ' + val + ' | 描述 |' + "\n"
             }
           })
         }
@@ -436,88 +485,110 @@ export default {
         case 'string':
           return 'string'
         case 'object':
+          if (val === null) {
+            return 'null'
+          }
           if (val.length !== undefined) {
             return 'array'
           } else {
-            if (val === null) {
-              return '空'
-            } else {
-              return 'object'
-            }
+            return 'object'
           }
         case 'undefined':
-          return '未知'
+          return 'undefined'
         case 'boolean':
           return 'bool'
       }
     },
-    getArray(data,type,emsp,ts){
+
+    /**
+     * 数组获取
+     * @param data 数组数据
+     * @param type 类型,req->请求的参数表格,res->返回的参数表格
+     * @param isOne 是否只需要一层的数据
+     * @param ts 每次的间隔,由方法自动生成,不需要填写
+     */
+    getNewArray(data, type, isOne = false, ts = '&emsp;') {
       let content = '';
-      if (emsp === null || emsp === undefined){
-        emsp = ''
+      if (isOne && this.getType(data[0]) === 'array') {
+        data = data[0]
+      } else if (this.getType(data[0]) === 'object') {
+        return this.getNewObject(data[0], type, isOne, ts);
       }
-      if(type === 0){
-        Object.keys(data[0]).forEach((val,key)=>{
-          if(emsp === ''){
-            content += '| '+val+' |'
-          }else if(ts !== 0){
-            if((data.length-1) !== key){
-              content += '| ├─'+emsp+' '+val+' |'
-            }else{
-              content += '| └─ '+emsp +' '+ val+' |'
-            }
+      let len = data.length - 1
+      data.forEach((val, key) => {
+        let types = this.getType(val)
+        let start = '├─ '
+        if (len === key) {
+          start = '└─ '
+        }
+        if (type === 'req') {
+          if (types === 'array') {
+            content += this.getNewArray(val[0], type, isOne, ts)
+          } else if (types === 'object') {
+            content += this.getNewObject(val[0], type, isOne, ts)
+          } else {
+            content += '|' + ts + ' ' + start + val + ' `可选` | ' + types + ' | 描述 |' + "\n"
           }
-          let t = this.getType(data[0][val])
-          if(t === 'object'){
-            content += ' object |'+"\n"
-            content += this.getArray(data[0][val],1,emsp+'&emsp;',1)
-          }else if(t === 'array'){
-            content += ' array |'+"\n"
-            content += this.getArray(data[0][val],0,emsp+'&emsp;',1)
-          }else{
-            if(ts !== 0){
-              content += '  |'+"\n"
-            }else{
-              if(data.length-1 !== key){
-                content += '| ├─'+emsp+' '+val+' | '+t+' |'+' 描述 |'+"\n"
-              }else{
-                content += '| └─'+emsp+' '+val+' | '+t+' |'+' 描述 |'+"\n"
-              }
-            }
+        } else {
+          if (types === 'array') {
+            content += this.getNewArray(val[0], type, isOne, ts)
+          } else if (types === 'object') {
+            content += this.getNewObject(val[0], type, isOne, ts)
+          } else {
+            content += '|' + ts + ' ' + start + val + ' | 描述 |' + "\n"
           }
-        })
-      }else{
-        let len = Object.keys(data).length
-        Object.keys(data).forEach((val,key)=>{
-          if(emsp === ''){
-            content += '| '+val+' |'
-          }else if(ts !== 0){
-            if((len - 1) !== key){
-              content += '| ├─'+emsp+' '+val+' |'
-            }else{
-              content += '| └─ '+emsp +' '+ val+' |'
-            }
-          }
-          let t = this.getType(data[val])
-          if(t === 'object'){
-            content += this.getArray(data[val],1,emsp+'&emsp;',ts)
-          }else if(t === 'array'){
-            content += ' array |'+"\n"
-            content += this.getArray(data[val],0,emsp+'&emsp;',ts)
-          }else{
-            if(ts !== 0){
-              content += '  |'+"\n"
-            }else{
-              if(data.length-1 !== key){
-                content += '| ├─'+emsp+' '+val+' | '+t+' |'+' 描述 |'+"\n"
-              }else{
-                content += '| └─'+emsp+' '+val+' | '+t+' |'+' 描述 |'+"\n"
-              }
-            }
-          }
-        })
+        }
+      })
+      return content
+    },
+
+    /**
+     * 对象获取
+     * @param data 数组数据
+     * @param type 类型,req->请求的参数表格,res->返回的参数表格
+     * @param isOne 是否只需要一层的数据
+     * @param ts 每次的间隔,由方法自动生成,不需要填写
+     */
+    getNewObject(data, type, isOne = false, ts = '&emsp;') {
+      let content = '';
+      let len = Object.keys(data).length
+      len = len !== 0 ? len - 1 : 0;
+      let types = this.getType(data)
+      if(types !== 'object' && types !== 'array'){
+        if(type !== 'req'){
+          return '';
+        }
       }
-      return content;
+      Object.keys(data).forEach((val, key) => {
+        let value = data[val]
+        let types = this.getType(value)
+        let start = '├─ '
+        if (len === key) {
+          start = '└─ '
+        }
+        if (type === 'req') {
+          if (types === 'array') {
+            content += '|' + ts + ' ' + start + val + '| ' + types + ' | 描述 |' + "\n" + this.getNewArray(value, type, isOne, ts + '&emsp;')
+          } else if (types === 'object') {
+            content += '|' + ts + ' ' + start + val + '| ' + types + ' | 描述 |' + "\n" + this.getNewObject(value, type, isOne, ts + '&emsp;')
+          } else {
+            content += '|' + ts + ' ' + start + val + '| ' + types + (value.length === 0 ? ' `可选`':'') + ' | 描述 |' + "\n"
+          }
+        } else {
+          if (types === 'array') {
+            content += '|' + ts + ' ' + start + val + ' | 描述 |' + "\n" + this.getNewArray(value, type, isOne, ts + '&emsp;')
+          } else if (types === 'object') {
+            content += '|' + ts + ' ' + start + val + ' | 描述 |' + "\n" + this.getNewObject(value, type, isOne, ts + '&emsp;')
+          } else {
+            content += '|' + ts + ' ' + start + val + ' | 描述 |' + "\n"
+          }
+        }
+      })
+      return content
+    },
+    //关闭进程
+    close() {
+      this.$y.sendMessage('appClose')
     }
   }
 }
